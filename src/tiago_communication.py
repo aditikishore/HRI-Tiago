@@ -31,10 +31,11 @@ class Listener(object):
         rospy.Subscriber("chatter", String, self.speech_callback)
         
         # A mapping from keywords or phrases to commands
-        self.keywords_to_command = {'backward': ['backward'],
-                                    'forward': ['forward'],
-                                    'turn left': ['left'],
-                                    'turn right': ['right']}
+        self.keywords_to_command = {'water': ['water'],
+                                    'pill': ['pill'],
+                                    'coffee': ['coffee'],
+                                    'nuts': ['nuts'], 
+                                    'fruits': ['fruits']}
 
     def get_command(self, data):
         # Attempt to match the recognized word or phrase to the 
