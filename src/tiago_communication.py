@@ -49,7 +49,7 @@ class Listener(object):
                     return command
 
 if __name__ == '__main__':
-    init_ros()
+    #init_ros()
     # Initialize this as a ROS node
     rospy.init_node('speech_node', anonymous=True)
     # Create a talker object

@@ -4,11 +4,10 @@ import rospy
 
 from geometry_msgs.msg import Twist
 from math import pi
-from std_msgs.msg import Bool
 
 class robot_base:
     def __init__(self):
-        self.rate = rospy.Rate(90)
+        self.rate = rospy.Rate(60)
         self.current_pos = "init"
 
 
@@ -67,10 +66,10 @@ class robot_base:
             now = rospy.Time.now()
         end_time = now + rospy.Duration.from_sec(duration)
         
-        print(now)
         while rospy.Time.now() < end_time:
             self.robot_base_publisher.publish(command)
             self.rate.sleep()
+
     def move_angle(self, angle, command): #degrees
         duration = (pi/180)*(angle/self.ang_vel)
         print("move_ang")
