@@ -31,11 +31,10 @@ class Listener(object):
         rospy.Subscriber("chatter", String, self.speech_callback)
         
         # A mapping from keywords or phrases to commands
-        self.keywords_to_command = {'water': ['water'],
-                                    'pill': ['pill'],
-                                    'coffee': ['coffee'],
-                                    'nuts': ['nuts'], 
-                                    'fruits': ['fruits']}
+        self.keywords_to_command = {'backward': ['backward'],
+                                    'forward': ['forward'],
+                                    'turn left': ['left'],
+                                    'turn right': ['right']}
 
     def get_command(self, data):
         # Attempt to match the recognized word or phrase to the 
@@ -50,11 +49,9 @@ class Listener(object):
                     return command
 
 if __name__ == '__main__':
-    init_ros()
+    #init_ros()
     # Initialize this as a ROS node
     rospy.init_node('speech_node', anonymous=True)
     # Create a talker object
     talker = Talker()
     talker.talk('hello friends', language='en_GB', block=True)
-
-
