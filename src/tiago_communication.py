@@ -5,6 +5,7 @@ from pal_interaction_msgs.msg import TtsAction, TtsGoal
 import rospy
 from std_msgs.msg import String
 import sys
+import time
 import speech_recognition as sr
 
 def init_ros():
@@ -84,27 +85,26 @@ if __name__ == '__main__':
 
     # Create recognizer object
     r = sr.Recognizer()
-    
-    for index, name in enumerate(sr.Microphone.list_microphone_names()):
-        print("Microphone with name \"{1}\" found for `Microphone(device_index={0})`".format(index, name))
 
     # Use default microphone as audio source 
-    with sr.Microphone() as source:
+    with sr.Microphone(device_index=13) as source:
         # adjust for noise 
         r.adjust_for_ambient_noise(source)
         # prompt user to say something
         print("please give me a command")
         talker.talk('please give me a command', language='en_GB', block=True)
+        # sleep for 5 seconds 
+        time.sleep(5)
         # listen for user input 
-        audio = r.listen(source)
+        audio = r.listen(source, duration=10)
 
     try:
         # recognize speech using Google Speech Recognition 
         text = r.recognize_google(audio)
-
         # print and say the recognized text
         print("You said: {}".format(text))
         talker.talk(text, language='en_GB', block=True)
+        sys.exit(1) #adding for testing purposes
 
     except sr.UnknownValueError:
         print("Oops! Unable to understand the audio input.")
