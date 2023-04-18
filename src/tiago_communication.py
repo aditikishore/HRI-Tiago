@@ -5,6 +5,7 @@ from pal_interaction_msgs.msg import TtsAction, TtsGoal
 import rospy
 from std_msgs.msg import String
 import sys
+import speech_recognition as sr
 
 def init_ros():
     rospy.init_node('speech_node', anonymous=False)
@@ -27,9 +28,6 @@ class Talker(object):
 
 class Listener(object):
     def __init__(self):
-
-        # Subscribe to the /ann_recognizer/output topic to receive voice commands.
-        rospy.Subscriber("chatter", String, self.speech_callback)
         
         # A mapping from keywords or phrases to commands
         self.keywords_to_command = {'water': ['water'],
@@ -37,7 +35,7 @@ class Listener(object):
                                     'coffee': ['coffee'], 
                                     'fruits': ['fruits'],
                                     'nuts': ['nuts']}
-
+''' ignore for now
     def get_command(self, data):
         # Attempt to match the recognized word or phrase to the 
         # keywords_to_command dictionary and return the appropriate
@@ -49,6 +47,7 @@ class Listener(object):
                     self.time1 = rospy.get_rostime()
                     self.wait_time = 10
                     return command
+    
     def speech_callback(self, msg):
         if self.TIAGo:
             self.time2 = rospy.get_rostime()
@@ -73,6 +72,7 @@ class Listener(object):
             talker.talk('fruits', language='en_GB', block=True)
         else:
             return
+'''
 
 if __name__ == '__main__':
     #init_ros()
@@ -80,4 +80,33 @@ if __name__ == '__main__':
     rospy.init_node('speech_node', anonymous=True)
     # Create a talker object
     talker = Talker()
-    talker.talk('hello friends', language='en_GB', block=True)
+    talker.talk('hello friends my name is TIAGo', language='en_GB', block=True)
+
+    # Create recognizer object
+    r = sr.Recognizer()
+
+    # Use default microphone as audio source 
+    with sr.Microphone() as source:
+        # adjust for noise 
+        r.adjust_for_ambient_noise(source)
+        # prompt user to say something
+        print("please give me a command")
+        talker.talk('please give me a command', language='en_GB', block=True)
+        # listen for user input 
+        audio = r.listen(source)
+
+    try:
+        # recognize speech using Google Speech Recognition 
+        text = r.recognize_google(audio)
+
+        # print and say the recognized text
+        print("You said: {}".format(text))
+        talker.talk(text, language='en_GB', block=True)
+
+    except sr.UnknownValueError:
+        print("Oops! Unable to understand the audio input.")
+        talker.talk('Oops! I was unable to understand the audio input', language='en_GB', block=True)
+    
+    except sr.RequestError as e:
+        print("Oops! Could not request results from Google Speech Recognition service; {0}".format(e))
+        talker.talk('Oops! I could not request results from Google Speech Recognition service')
