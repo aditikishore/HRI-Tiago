@@ -84,6 +84,9 @@ if __name__ == '__main__':
 
     # Create recognizer object
     r = sr.Recognizer()
+    
+    for index, name in enumerate(sr.Microphone.list_microphone_names()):
+        print("Microphone with name \"{1}\" found for `Microphone(device_index={0})`".format(index, name))
 
     # Use default microphone as audio source 
     with sr.Microphone() as source:
