@@ -110,19 +110,19 @@ if __name__=='__main__':
     nlp = spacy.load("en_core_web_sm")
     Listener.listen()
 
-    base.move_from_home_to_inv()
+    #base.move_from_home_to_inv()
     time.sleep(5)
     talker.talk('I am placing your item on the target table now', language='en_GB', block=True)
 
-    base.move_from_inv_to_tar()
+    #base.move_from_inv_to_tar()
     time.sleep(5)
     talker.talk('I have delivered your item to the target table', language='en_GB', block=True)
 
-    base.move_from_tar_to_home()
+    #base.move_from_tar_to_home()
     time.sleep(5)
     talker.talk('Now that I have delivered the item you requested, I can get you something else in a moment', language='en_GB', block=True)
     Listener.listen()
-    
+
 '''
     camera_frame = "/xtion_rgb_optical_frame"
     base_frame = "base_link"
