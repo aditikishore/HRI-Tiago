@@ -38,67 +38,69 @@ class Listener(object):
                                     'coffee': ['coffee'], 
                                     'fruits': ['fruits'],
                                     'nuts': ['nuts']}
+    
+    def listen():
+        # Use default microphone as audio source 
+        with sr.Microphone() as source:
+            # adjust for noise 
+            r.adjust_for_ambient_noise(source)
+            # prompt user to say something
+            print("please give me a command")
+            Talker.talk('May I get you anything', language='en_GB', block=True)
+            # sleep for half a second 
+            time.sleep(0.5)
+            # listen for user input 
+            t_end = time.time() + 5
+            while time.time() < t_end:
+                print("listening")
+                audio = r.listen(source)
         
+            print("got it")
+        try:
+            # recognize speech using Google Speech Recognition 
+            text = r.recognize_google(audio)
+            Listener.keywordCheck(text, audio)
+        except sr.UnknownValueError:
+            print("Oops! Unable to understand the audio input.")
+        except sr.RequestError as e:
+            print("Oops! Could not request results from Google Speech Recognition service; {0}".format(e))
+
+    def keywordCheck(text, audio):
+        text = r.recognize_google(audio)
+        command = nlp(text)
+        for token in command:
+            print(token, token.idx)
+
+            if token.text == "water":
+                print("water")
+                talker.talk('I will bring you the water bottle', language='en_GB', block=True)
+            elif token.text == "pill":
+                print("pill")
+                talker.talk('I will bring you the pill bottle', language='en_GB', block=True)
+            elif token.text == "nuts":
+                print("nuts")
+                talker.talk('I will bring you the mixed nuts jar', language='en_GB', block=True)
+            elif token.text == "vitamins":
+                print("fruits")
+                talker.talk('I will bring you the dried fruits jar', language='en_GB', block=True)
+            elif token.text == "oats":
+                print("coffee")
+                talker.talk('I will bring you your coffee', language='en_GB', block=True)
+            else:
+                print("I did not catch any keywords")
 
 if __name__ == '__main__':
     
     # Initialize this as a ROS node
     rospy.init_node('speech_node', anonymous=True)
     
-    # Create a talker object
+    # Create a talker object and introduce yourself 
     talker = Talker()
-    talker.talk('hello friends my name is TIAGo', language='en_GB', block=True)
+    talker.talk('Hello friends my name is TIAGo. I can retrieve objects for you through verbal requests. Some examples include water bottles, pill bottles, coffee, mixed nuts, and dried fruits.', language='en_GB', block=True)
 
     # Create recognizer object
     r = sr.Recognizer()
-    
     nlp = spacy.load("en_core_web_sm")
-    
-    # Use default microphone as audio source 
-    with sr.Microphone() as source:
-        # adjust for noise 
-        r.adjust_for_ambient_noise(source)
-        # prompt user to say something
-        print("please give me a command")
-        talker.talk('please give me a command', language='en_GB', block=True)
-        # sleep for 2 seconds 
-        time.sleep(2)
+    Listener.listen()
 
-        # listen for user input 
-        t_end = time.time() + 5
-        while time.time() < t_end:
-            print("listening")
-            audio = r.listen(source)
-        
-        print("got it")
-    try:
-        # recognize speech using Google Speech Recognition 
-        text = r.recognize_google(audio)
 
-        command = nlp(text)
-        talker.talk(text, language='en_GB', block=True)
-        for token in command:
-            print(token, token.idx)
-
-            if token.text == "water":
-                print("water")
-                talker.talk('I will get you water', language='en_GB', block=True)
-            elif token.text == "pill":
-                print("pill")
-                talker.talk('I will get you the pill bottle', language='en_GB', block=True)
-            elif token.text == "fruit":
-                print("fruit")
-                talker.talk('I will get you the fruit container', language='en_GB', block=True)
-            elif token.text == "nut":
-                print("nut")
-                talker.talk('I will get you the box of nuts', language='en_GB', block=True)
-            elif token.text == "coffee":
-                print("coffee")
-                talker.talk('I will grab your coffee', language='en_GB', block=True)
-            else:
-                print("Oops")
-    except sr.UnknownValueError:
-        print("Oops! Unable to understand the audio input.")
-    
-    except sr.RequestError as e:
-        print("Oops! Could not request results from Google Speech Recognition service; {0}".format(e))
