@@ -80,10 +80,10 @@ class Listener(object):
             elif token.text == "nuts":
                 print("nuts")
                 talker.talk('I will bring you the mixed nuts jar', language='en_GB', block=True)
-            elif token.text == "vitamins":
+            elif token.text == "fruits":
                 print("fruits")
                 talker.talk('I will bring you the dried fruits jar', language='en_GB', block=True)
-            elif token.text == "oats":
+            elif token.text == "coffee":
                 print("coffee")
                 talker.talk('I will bring you your coffee', language='en_GB', block=True)
             else:
