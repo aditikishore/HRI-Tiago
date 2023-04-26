@@ -1,27 +1,29 @@
 #!/usr/bin/env python
 
-from actionlib import SimpleActionClient 
-from pal_interaction_msgs.msg import TtsAction, TtsGoal
 import rospy
-from std_msgs.msg import String
-import sys
 import time
 import speech_recognition as sr
 import spacy
+
+from actionlib import SimpleActionClient
+from pal_interaction_msgs.msg import TtsAction, TtsGoal
 
 
 def init_ros():
     rospy.init_node('speech_node', anonymous=False)
 
-class Talker(object):
+
+class Talker:
     def __init__(self):
+        self.language = 'en_GB'
+
         # Connect to text-to-speech action server
         self.ac = SimpleActionClient('/tts', TtsAction)
         self.ac.wait_for_server()
 
-    def talk(self, text, language='en_GB', block=True):
+    def talk(self, text, block=True):
         goal = TtsGoal()
-        goal.rawtext.lang_id = language
+        goal.rawtext.lang_id = self.language
         goal.rawtext.text = text
 
         if block:
@@ -29,72 +31,85 @@ class Talker(object):
         else:
             self.ac.send_goal(goal)
 
-class Listener(object):
+
+class Listener:
     def __init__(self):
-        
+
         # A mapping from keywords or phrases to commands
-        self.keywords_to_command = {'water': ['water'],
-                                    'pill': ['pill'],
-                                    'coffee': ['coffee'], 
-                                    'fruits': ['fruits'],
-                                    'nuts': ['nuts']}
-    
-    def listen():
-        # Use default microphone as audio source 
+        self.keywords_to_ID = {'water': ['water'],
+                               'pill': ['pill'],
+                               'coffee': ['coffee'],
+                               'fruits': ['fruits'],
+                               'nuts': ['nuts']}
+
+        self.recognizer = sr.Recognizer()
+        self.nlp = spacy.load("en_core_web_sm")
+
+    def listen(self):
+        # Use default microphone as audio source
         with sr.Microphone() as source:
-            # adjust for noise 
-            r.adjust_for_ambient_noise(source)
+
+            # adjust for noise
+            self.recognier.adjust_for_ambient_noise(source)
+
             # prompt user to say something
-            print("please give me a command")
-            Talker.talk('May I get you anything', language='en_GB', block=True)
-            # sleep for half a second 
+            print("Please give me a command")
+
+            # sleep for half a second
             time.sleep(0.5)
-            # listen for user input 
+
+            # listen for user input
             t_end = time.time() + 5
             while time.time() < t_end:
                 print("listening")
-                audio = r.listen(source)
-        
-            print("got it")
+                audio = self.recognizer.listen(source)
+
+            print("Heard something")
+
         try:
-            # recognize speech using Google Speech Recognition 
-            text = r.recognize_google(audio)
-            Listener.keywordCheck(text, audio)
+            # recognize speech using Google Speech Recognition
+            self.keywordCheck(audio)
         except sr.UnknownValueError:
             print("Oops! Unable to understand the audio input.")
         except sr.RequestError as e:
-            print("Oops! Could not request results from Google Speech Recognition service; {0}".format(e))
+            print(
+                "Oops! Could not request results from Google Speech Recognition service; {0}".format(e))
 
-    def keywordCheck(text, audio):
-        text = r.recognize_google(audio)
-        command = nlp(text)
+    def keywordCheck(self, audio):
+        text = self.recognizer.recognize_google(audio)
+        command = self.nlp(text)
+        item = 'nothing'
         for token in command:
             print(token, token.idx)
 
+            # needs to be refactored to return aruco ID from dictionary
             if token.text == "water":
                 print("water")
-                talker.talk('I will bring you the water bottle', language='en_GB', block=True)
+                item = token.text
             elif token.text == "pill":
                 print("pill")
-                talker.talk('I will bring you the pill bottle', language='en_GB', block=True)
+                item = token.text
             elif token.text == "nuts":
                 print("nuts")
-                talker.talk('I will bring you the mixed nuts jar', language='en_GB', block=True)
+                item = token.text
             elif token.text == "fruits":
                 print("fruits")
-                talker.talk('I will bring you the dried fruits jar', language='en_GB', block=True)
+                item = token.text
             elif token.text == "coffee":
                 print("coffee")
-                talker.talk('I will bring you your coffee', language='en_GB', block=True)
+                item = token.text
             else:
                 print("I did not catch any keywords")
 
+        return item
+
+
 if __name__ == '__main__':
-    
+
     # Initialize this as a ROS node
     rospy.init_node('speech_node', anonymous=True)
-    
-    # Create a talker object and introduce yourself 
+
+    # Create a talker object and introduce yourself
     talker = Talker()
     talker.talk('Hello friends my name is TIAGo. I can retrieve objects for you through verbal requests. Some examples include water bottles, pill bottles, coffee, mixed nuts, and dried fruits.', language='en_GB', block=True)
 
@@ -102,5 +117,3 @@ if __name__ == '__main__':
     r = sr.Recognizer()
     nlp = spacy.load("en_core_web_sm")
     Listener.listen()
-
-
