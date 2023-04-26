@@ -41,7 +41,8 @@ class robot_base:
     # robot moves to home position and faces user
     def move_from_init_to_home(self):
         self.move_to_point(-1.0, self.half_base_width, 180)
-        self.move_to_point(-1.9, 1.75, -110)
+        self.move_to_point(-1.0, 1.75, 90)
+        self.move_to_point(-1.9, 1.75, -100)
         self.current_pos = "home"
 
     # robot moves close to inventory table. ready to pick
@@ -64,6 +65,8 @@ class robot_base:
     def move_to_point(self, x, y, ori):
         delta_x = x - self.X_pos
         delta_y = y - self.Y_pos
+        print("delta X:", delta_x)
+        print("delta Y:", delta_y)
 
         angle_to = math.atan2(delta_y, delta_x)
         angle = self.limit_angle_to_range(angle_to - self.ori_pos)

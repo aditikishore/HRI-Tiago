@@ -99,29 +99,33 @@ if __name__=='__main__':
     init_ros()
 
     base = move_base.robot_base()
+    # base.move_distance(1.25 + base.half_base_length, base.cmd_w)
+
     base.move_from_init_to_home()
-
-    # Create a talker object and introduce yourself 
-    talker = Talker()
-    talker.talk('Hello friends my name is TIAGo. I can retrieve objects for you through verbal requests. Some examples include water bottles, pill bottles, coffee, mixed nuts, and dried fruits.', language='en_GB', block=True)
-
-    # Create recognizer object
-    r = sr.Recognizer()
-    nlp = spacy.load("en_core_web_sm")
-    Listener.listen()
-
+    time.sleep(5)
     base.move_from_home_to_inv()
-    time.sleep(5)
-    talker.talk('I am placing your item on the target table now', language='en_GB', block=True)
 
-    base.move_from_inv_to_tar()
-    time.sleep(5)
-    talker.talk('I have delivered your item to the target table', language='en_GB', block=True)
+    # # Create a talker object and introduce yourself 
+    # talker = Talker()
+    # talker.talk('Hello friends my name is TIAGo. I can retrieve objects for you through verbal requests. Some examples include water bottles, pill bottles, coffee, mixed nuts, and dried fruits.', language='en_GB', block=True)
 
-    base.move_from_tar_to_home()
-    time.sleep(5)
-    talker.talk('Now that I have delivered the item you requested, I can get you something else in a moment', language='en_GB', block=True)
-    Listener.listen()
+    # # Create recognizer object
+    # r = sr.Recognizer()
+    # nlp = spacy.load("en_core_web_sm")
+    # Listener.listen()
+
+    # base.move_from_home_to_inv()
+    # time.sleep(5)
+    # talker.talk('I am placing your item on the target table now', language='en_GB', block=True)
+
+    # base.move_from_inv_to_tar()
+    # time.sleep(5)
+    # talker.talk('I have delivered your item to the target table', language='en_GB', block=True)
+
+    # base.move_from_tar_to_home()
+    # time.sleep(5)
+    # talker.talk('Now that I have delivered the item you requested, I can get you something else in a moment', language='en_GB', block=True)
+    # Listener.listen()
 
     # camera_frame = "/xtion_rgb_optical_frame"
     # base_frame = "base_link"
