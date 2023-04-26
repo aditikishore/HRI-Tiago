@@ -52,7 +52,7 @@ class Listener(object):
             r.adjust_for_ambient_noise(source)
             # prompt user to say something
             print("please give me a command")
-            Talker.talk(talker, 'May I get you anything', language='en_GB', block=True)
+            talker.talk('May I get you anything', language='en_GB', block=True)
             # sleep for half a second 
             time.sleep(0.5)
             # listen for user input 
@@ -79,19 +79,19 @@ class Listener(object):
 
             if token.text == "water":
                 print("water")
-                talker.talk(talker, 'I will bring you the water bottle', language='en_GB', block=True)
+                talker.talk('I will bring you the water bottle', language='en_GB', block=True)
             elif token.text == "pill":
                 print("pill")
-                talker.talk(talker, 'I will bring you the pill bottle', language='en_GB', block=True)
+                talker.talk('I will bring you the pill bottle', language='en_GB', block=True)
             elif token.text == "nuts":
                 print("nuts")
-                talker.talk(talker, 'I will bring you the mixed nuts jar', language='en_GB', block=True)
+                talker.talk('I will bring you the mixed nuts jar', language='en_GB', block=True)
             elif token.text == "fruits":
                 print("fruits")
-                talker.talk(talker, 'I will bring you the dried fruits jar', language='en_GB', block=True)
+                talker.talk('I will bring you the dried fruits jar', language='en_GB', block=True)
             elif token.text == "coffee":
                 print("coffee")
-                talker.talk(talker, 'I will bring you your coffee', language='en_GB', block=True)
+                talker.talk('I will bring you your coffee', language='en_GB', block=True)
             else:
                 print("I did not catch any keywords")
 
