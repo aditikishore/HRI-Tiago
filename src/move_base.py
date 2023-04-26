@@ -3,13 +3,13 @@
 import rospy
 
 from geometry_msgs.msg import Twist
-from math import pi
+import math
+
 
 class robot_base:
     def __init__(self):
         self.rate = rospy.Rate(60)
         self.current_pos = "init"
-
 
         self.lin_vel = 0.2
         self.ang_vel = 0.2
@@ -17,61 +17,98 @@ class robot_base:
         self.half_base_length = 0.36
         self.half_base_width = 0.25
 
+        self.X_pos = self.half_base_length
+        self.Y_pos = self.half_base_width
+        self.ori_pos = math.pi
 
-        self.cmd_w = self.generate_twist([self.lin_vel,0.0,0.0],[0.0,0.0,0.0])
-        self.cmd_s = self.generate_twist([-self.lin_vel,0.0,0.0],[0.0,0.0,0.0])
-        self.cmd_a = self.generate_twist([0.0,self.lin_vel,0.0],[0.0,0.0,0.0])
-        self.cmd_d = self.generate_twist([0.0,-self.lin_vel,0.0],[0.0,0.0,0.0])
-        self.cmd_l = self.generate_twist([0.0,0.0,0.0],[0.0,0.0,self.ang_vel])
-        self.cmd_r = self.generate_twist([0.0,0.0,0.0],[0.0,0.0,-self.ang_vel])
-        self.cmd_stop = self.generate_twist([0.0,0.0,0.0],[0.0,0.0,0.0])
+        self.cmd_w = self.generate_twist(
+            [self.lin_vel, 0.0, 0.0], [0.0, 0.0, 0.0])
+        self.cmd_s = self.generate_twist(
+            [-self.lin_vel, 0.0, 0.0], [0.0, 0.0, 0.0])
+        self.cmd_a = self.generate_twist(
+            [0.0, self.lin_vel, 0.0], [0.0, 0.0, 0.0])
+        self.cmd_d = self.generate_twist(
+            [0.0, -self.lin_vel, 0.0], [0.0, 0.0, 0.0])
+        self.cmd_l = self.generate_twist(
+            [0.0, 0.0, 0.0], [0.0, 0.0, self.ang_vel])
+        self.cmd_r = self.generate_twist(
+            [0.0, 0.0, 0.0], [0.0, 0.0, -self.ang_vel])
+        self.cmd_stop = self.generate_twist([0.0, 0.0, 0.0], [0.0, 0.0, 0.0])
 
+        self.robot_base_publisher = rospy.Publisher(
+            '/mobile_base_controller/cmd_vel', Twist, queue_size=1)
 
-        self.robot_base_publisher = rospy.Publisher('/mobile_base_controller/cmd_vel',Twist,queue_size=1)
-
-    def move_from_init_to_home(self):   #robot moves to home position and faces user
-        self.move_distance(1.9 + self.half_base_length, self.cmd_w)
-        self.move_distance(1.75 - self.half_base_width, self.cmd_d)
-        self.move_angle(60, self.cmd_l)
-        self.robot_base_publisher.publish(self.cmd_stop)
+    # robot moves to home position and faces user
+    def move_from_init_to_home(self):
+        self.move_to_point(-1.0, self.half_base_width, 180)
+        self.move_to_point(-1.9, 1.75, -110)
         self.current_pos = "home"
 
-    def move_from_home_to_inv(self):    #robot moves close to inventory table. ready to pick
-        self.move_angle(150, self.cmd_r)
-        self.move_distance(1.15 - self.half_base_length, self.cmd_w)
-        self.robot_base_publisher.publish(self.cmd_stop)  
+    # robot moves close to inventory table. ready to pick
+    def move_from_home_to_inv(self):
+        self.move_to_point(-1.9, 2.7-self.half_base_length, 90)
         self.current_pos = "inv"
 
-    def move_from_inv_to_tar(self):     #robot moves close to target toable, ready to place
-        self.move_distance(1.15 + 1.0 - self.half_base_length, self.cmd_s)
-        self.move_angle(90, self.cmd_l)
-        self.move_distance(0.75 - self.half_base_width - 0.1, self.cmd_a)
-        self.move_distance(0.6 - self.half_base_length - 0.1, self.cmd_w)
-        self.robot_base_publisher.publish(self.cmd_stop)
+    # robot moves close to target table, ready to place
+    def move_from_inv_to_tar(self):
+        self.move_to_point(-2.4 + self.half_base_width, 2.7-self.half_base_length, -90)
+        self.move_to_point(-2.4 + self.half_base_width, 0.6 + self.half_base_length, -90)
         self.current_pos = "tar"
 
-    def move_from_tar_to_home(self):    #robot moves back to home, ready for another command
-        self.move_distance(0.6 - self.half_base_length - 0.1, self.cmd_s)
-        self.move_distance(1.75 - self.half_base_width - 0.1, self.cmd_d)
-        self.move_angle(60, self.cmd_l) 
-        self.robot_base_publisher.publish(self.cmd_stop)
+    # robot moves back to home, ready for another command
+    def move_from_tar_to_home(self):
+        self.move_to_point(-1.9, 1.75, -110)
         self.current_pos = "home"
 
-    def move_distance(self, distance, command): #meters
+    # move from wherever the robot is to a point and rotate to the ori. keep ori between -180 and 180
+    def move_to_point(self, x, y, ori):
+        delta_x = x - self.X_pos
+        delta_y = y - self.Y_pos
+
+        angle_to = math.atan2(delta_y, delta_x)
+        angle = self.limit_angle_to_range(angle_to - self.ori_pos)
+
+        if (angle < 0):
+            self.move_angle(-angle * (180/math.pi), self.cmd_r)
+        else:
+            self.move_angle(angle * (180/math.pi), self.cmd_l)
+
+        self.ori_pos = angle_to
+
+        distance = math.sqrt((delta_x)**2 + (delta_y)**2)
+        self.move_distance(distance, self.cmd_w)
+        self.X_pos = x
+        self.Y_pos = y
+
+        angle = self.limit_angle_to_range(ori * (math.pi/180) - self.ori_pos)
+
+        if (angle < 0):
+            self.move_angle(-angle * (180/math.pi), self.cmd_r)
+        else:
+            self.move_angle(angle * (180/math.pi), self.cmd_l)
+
+        self.ori_pos = ori * (math.pi/180)
+
+        print("Robot now at:", self.X_pos, self.Y_pos)
+
+    def move_distance(self, distance, command):  # meters
         duration = distance/self.lin_vel
         print("move_dist")
 
         now = 0
-        while not now:      #wait for clock message to publish
+        while not now:  # wait for clock message to publish
             now = rospy.Time.now()
         end_time = now + rospy.Duration.from_sec(duration)
-        
+
         while rospy.Time.now() < end_time:
             self.robot_base_publisher.publish(command)
             self.rate.sleep()
+        
+        self.robot_base_publisher.publish(self.cmd_stop)
 
-    def move_angle(self, angle, command): #degrees
-        duration = (pi/180)*(angle/self.ang_vel)
+    def move_angle(self, angle, command):  # degrees
+        angle = abs(angle) + 0.5 #friction
+        duration = (math.pi/180)*(angle/self.ang_vel)
         print("move_ang")
 
         now = 0
@@ -83,6 +120,8 @@ class robot_base:
             self.robot_base_publisher.publish(command)
             self.rate.sleep()
 
+        self.robot_base_publisher.publish(self.cmd_stop)
+
     def generate_twist(self, linear, angular):
         twist = Twist()
         twist.linear.x = linear[0]
@@ -93,3 +132,10 @@ class robot_base:
         twist.angular.z = angular[2]
 
         return twist
+
+    def limit_angle_to_range(self, angle):
+        if angle > math.pi:
+            angle = angle - 2*math.pi
+        if angle < -math.pi:
+            angle = angle + 2*math.pi
+        return angle
