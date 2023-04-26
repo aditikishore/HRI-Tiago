@@ -7,6 +7,8 @@ from std_msgs.msg import String
 import sys
 import time
 import speech_recognition as sr
+import spacy
+
 
 def init_ros():
     rospy.init_node('speech_node', anonymous=False)
@@ -36,80 +38,69 @@ class Listener(object):
                                     'coffee': ['coffee'], 
                                     'fruits': ['fruits'],
                                     'nuts': ['nuts']}
-''' ignore for now
-    def get_command(self, data):
-        # Attempt to match the recognized word or phrase to the 
-        # keywords_to_command dictionary and return the appropriate
-        # command
-        for (command, keywords) in self.keywords_to_command.iteritems():
-            for word in keywords:
-                if data.find(word) > -1:
-                    # Wait time for other command, in seconds
-                    self.time1 = rospy.get_rostime()
-                    self.wait_time = 10
-                    return command
     
-    def speech_callback(self, msg):
-        if self.TIAGo:
-            self.time2 = rospy.get_rostime()
-            if self.time2.secs < self.time1.secs+self.wait_time:
-                command = self.get_command(msg.data)
-            else:
-                self.TIAGo = False
-                self.wait_time = self.wait_time_initial
-                return
-        else:
-            return
+    def listen():
+        # Use default microphone as audio source 
+        with sr.Microphone() as source:
+            # adjust for noise 
+            r.adjust_for_ambient_noise(source)
+            # prompt user to say something
+            print("please give me a command")
+            Talker.talk('May I get you anything', language='en_GB', block=True)
+            # sleep for half a second 
+            time.sleep(0.5)
+            # listen for user input 
+            t_end = time.time() + 5
+            while time.time() < t_end:
+                print("listening")
+                audio = r.listen(source)
         
-        if command == 'water':
-            talker.talk('water', language='en_GB', block=True)
-        elif command == 'pill':
-            talker.talk('pill', language='en_GB', block=True)
-        elif command == 'coffee':
-            talker.talk('coffee', language='en_GB', block=True)
-        elif command == 'nuts':
-            talker.talk('nuts', language='en_GB', block=True)
-        elif command == 'fruits':
-            talker.talk('fruits', language='en_GB', block=True)
-        else:
-            return
-'''
+            print("got it")
+        try:
+            # recognize speech using Google Speech Recognition 
+            text = r.recognize_google(audio)
+            Listener.keywordCheck(text, audio)
+        except sr.UnknownValueError:
+            print("Oops! Unable to understand the audio input.")
+        except sr.RequestError as e:
+            print("Oops! Could not request results from Google Speech Recognition service; {0}".format(e))
+
+    def keywordCheck(text, audio):
+        text = r.recognize_google(audio)
+        command = nlp(text)
+        for token in command:
+            print(token, token.idx)
+
+            if token.text == "water":
+                print("water")
+                talker.talk('I will bring you the water bottle', language='en_GB', block=True)
+            elif token.text == "pill":
+                print("pill")
+                talker.talk('I will bring you the pill bottle', language='en_GB', block=True)
+            elif token.text == "nuts":
+                print("nuts")
+                talker.talk('I will bring you the mixed nuts jar', language='en_GB', block=True)
+            elif token.text == "fruits":
+                print("fruits")
+                talker.talk('I will bring you the dried fruits jar', language='en_GB', block=True)
+            elif token.text == "coffee":
+                print("coffee")
+                talker.talk('I will bring you your coffee', language='en_GB', block=True)
+            else:
+                print("I did not catch any keywords")
 
 if __name__ == '__main__':
-    #init_ros()
+    
     # Initialize this as a ROS node
     rospy.init_node('speech_node', anonymous=True)
-    # Create a talker object
+    
+    # Create a talker object and introduce yourself 
     talker = Talker()
-    talker.talk('hello friends my name is TIAGo', language='en_GB', block=True)
+    talker.talk('Hello friends my name is TIAGo. I can retrieve objects for you through verbal requests. Some examples include water bottles, pill bottles, coffee, mixed nuts, and dried fruits.', language='en_GB', block=True)
 
     # Create recognizer object
     r = sr.Recognizer()
+    nlp = spacy.load("en_core_web_sm")
+    Listener.listen()
 
-    # Use default microphone as audio source 
-    with sr.Microphone(device_index=13) as source:
-        # adjust for noise 
-        r.adjust_for_ambient_noise(source)
-        # prompt user to say something
-        print("please give me a command")
-        talker.talk('please give me a command', language='en_GB', block=True)
-        # sleep for 5 seconds 
-        time.sleep(5)
-        # listen for user input 
-        audio = r.listen(source, duration=10)
 
-    try:
-        # recognize speech using Google Speech Recognition 
-        text = r.recognize_google(audio)
-        # print and say the recognized text
-        print("You said: {}".format(text))
-        talker.talk(text, language='en_GB', block=True)
-        sys.exit(1) #adding for testing purposes
-
-    except sr.UnknownValueError:
-        print("Oops! Unable to understand the audio input.")
-        talker.talk('Oops! I was unable to understand the audio input', language='en_GB', block=True)
-    
-    except sr.RequestError as e:
-        print("Oops! Could not request results from Google Speech Recognition service; {0}".format(e))
-        talker.talk('Oops! I could not request results from Google Speech Recognition service')
