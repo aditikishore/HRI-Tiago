@@ -12,7 +12,7 @@ class robot_base:
         self.current_pos = "init"
 
         self.lin_vel = 0.2
-        self.ang_vel = 0.2
+        self.ang_vel = 0.4
 
         self.half_base_length = 0.36
         self.half_base_width = 0.25
@@ -28,9 +28,9 @@ class robot_base:
         self.home_x = -1.8
         self.home_y = 1.3
 
-        self.inv_y = 2.0
+        self.inv_y = 2.3
 
-        self.tar_x = -2.0
+        self.tar_x = -2.2
         self.tar_y = 0.5
         ##########
 
@@ -65,7 +65,7 @@ class robot_base:
 
     # robot moves close to target table, ready to place
     def move_from_inv_to_tar(self):
-        self.move_to_point(self.tar_x + self.half_base_width, self.home_y-self.half_base_length, -90)
+        self.move_to_point(self.tar_x + self.half_base_width, self.home_y, -90)
         self.move_to_point(self.tar_x + self.half_base_width, self.tar_y + self.half_base_length, -90)
         self.current_pos = "tar"
 
@@ -114,13 +114,13 @@ class robot_base:
             now = rospy.Time.now()
         end_time = now + rospy.Duration.from_sec(duration)
 
-        print("expected duration:", rospy.Duration.from_sec(duration))
+        #print("expected duration:", rospy.Duration.from_sec(duration))
 
         while rospy.Time.now() < end_time:
             self.robot_base_publisher.publish(command)
             self.rate.sleep()
 
-        print("actual duration:", (rospy.Time.now()-now))
+        #print("actual duration:", (rospy.Time.now()-now))
         
         self.robot_base_publisher.publish(self.cmd_stop)
 

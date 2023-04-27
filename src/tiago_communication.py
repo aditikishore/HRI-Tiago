@@ -50,7 +50,7 @@ class Listener:
         with sr.Microphone() as source:
 
             # adjust for noise
-            self.recognier.adjust_for_ambient_noise(source)
+            self.recognizer.adjust_for_ambient_noise(source)
 
             # prompt user to say something
             print("Please give me a command")
