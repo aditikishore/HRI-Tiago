@@ -106,6 +106,8 @@ class Listener:
                 item = "unknown"
                 print("I did not catch any keywords")
 
+        print (item)
+
         return item
 
 
