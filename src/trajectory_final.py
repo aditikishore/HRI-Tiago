@@ -5,14 +5,19 @@ import string
 
 from boost import shared_ptr
 
-import ros
-from actionlib import client.simple_action_client
+import ros;
+from actionlib import client; '''.simple_action_client'''
 from control_msgs import FollowJointTrajectoryAction
 from ros import topic
 
 #  typedef part - have to convert to rospy
 # typedef actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction> arm_control_client;
 # typedef boost::shared_ptr< arm_control_client>  arm_control_client_Ptr;
+'''
+class move_arm(self):
+    def __init__(self,goal):
+
+'''
 
 def createArmClient(action_client, arm_controller_name):
     
@@ -31,14 +36,14 @@ def createArmClient(action_client, arm_controller_name):
         # iterations = iterations+1
         # ROS_DEBUG("Error: arm controller action server not available")
 
-    if (iterations = max_iterations):
-        throw RuntimeError("Error: Arm Controller Action server not available")
+    # if (iterations = max_iterations):
+    #     throw RuntimeError("Error: Arm Controller Action server not available")
     
 def waypointsArmGoal(goal):
     goal.trajectory.points.resize(2)
     index = 0
 
-    goal.trajectory.points[index].positions.resize(7)``
+    goal.trajectory.points[index].positions.resize(7)
     goal.trajectory.points[index].positions[0] = 0.00
     goal.trajectory.points[index].positions[1] = 0.59
     goal.trajectory.points[index].positions[2] = 0.06
@@ -96,7 +101,7 @@ def waypointsArmRightGoal(goal):
     
     waypointsArmGoal(goal)
 
-def __main__(argc, argv):
+def main():
     rospy.init_node(argc, argv, "run_dual_traj_control")
     rospy.loginfo("Starting Dual Trajectory")
 
@@ -135,3 +140,7 @@ def __main__(argc, argv):
     arm_right_client.sendGoal(arm_right_goal)
 
     # rospy.sleep(4)
+
+
+if __name__ == "__main__":
+    main()
