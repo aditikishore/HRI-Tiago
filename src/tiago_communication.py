@@ -48,6 +48,7 @@ class Listener:
 
     def listen(self):
         # Use default microphone as audio source
+        item = 'nothing'
         with sr.Microphone() as source:
 
             # adjust for noise
@@ -69,12 +70,14 @@ class Listener:
 
         try:
             # recognize speech using Google Speech Recognition
-            self.keywordCheck(audio)
+            item = self.keywordCheck(audio)
         except sr.UnknownValueError:
             print("Oops! Unable to understand the audio input.")
         except sr.RequestError as e:
             print(
                 "Oops! Could not request results from Google Speech Recognition service; {0}".format(e))
+            
+        return item
 
     def keywordCheck(self, audio):
         text = self.recognizer.recognize_google(audio)
