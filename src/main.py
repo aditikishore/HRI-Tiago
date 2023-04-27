@@ -22,17 +22,17 @@ def HRI_script():
     listener = tiago_communication.Listener()
     print('Initialised listener')
 
-    test_motions(base, body)
+    # test_motions(base, body)
 
-    # base.move_from_init_to_home()
+    base.move_from_init_to_home()
 
-    # talker.talk('Hi, I am TIAGo, your personal helper robot. I can retrieve things for you from that table behind me.', block=True)
-    # talker.talk('The things kept on the table are: a water bottle, pill bottle, coffee, jar of mixed nuts, and dried fruits.', block=True)
-    # talker.talk('What would you like me to bring for you?.', block=True)
+    talker.talk('Hi, I am TIAGo, your personal helper robot. I can retrieve things for you from that table behind me.', block=True)
+    talker.talk('The things kept on the table are: a water bottle, pill bottle, coffee, jar of mixed nuts, and dried fruits.', block=True)
+    talker.talk('What would you like me to bring for you?.', block=True)
 
-    # assist_loop(base, body, talker, listener)
+    assist_loop(base, body, talker, listener)
 
-    # base.move_from_home_to_init()
+    base.move_from_home_to_init()
 
 def assist_loop(base, body, talker, listener):
 
@@ -74,7 +74,7 @@ def assist_loop(base, body, talker, listener):
         time.sleep(5)
         body.look_at_inv()
         time.sleep(2)
-        prompt = 'I am trying to pick your ' + item + ' from the table but it looks like my arms are not working'
+        prompt = 'I am trying to pick up ' + item + ' from the table but it looks like my arms are not working'
         talker.talk(prompt, block=True)
         body.center_torso()
         time.sleep(5)
