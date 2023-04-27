@@ -74,6 +74,11 @@ class robot_base:
         self.move_to_point(self.home_x, self.home_y, -95)
         self.current_pos = "home"
 
+    # robot moves back to init, ready for shutdown
+    def move_from_home_to_init(self):
+        self.move_to_point(self.half_base_length, self.half_base_width, 100)
+        self.current_pos = "init"
+
     # move from wherever the robot is to a point and rotate to the ori. keep ori between -180 and 180
     def move_to_point(self, x, y, ori):
         delta_x = x - self.X_pos

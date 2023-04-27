@@ -19,6 +19,7 @@ class Talker:
 
         # Connect to text-to-speech action server
         self.ac = SimpleActionClient('/tts', TtsAction)
+        print('waiting for tts server')
         self.ac.wait_for_server()
 
     def talk(self, text, block=True):
@@ -98,7 +99,11 @@ class Listener:
             elif token.text == "coffee":
                 print("coffee")
                 item = token.text
+            elif token.text == "thank":
+                print("thank you")
+                item = token.text
             else:
+                item = "unknown"
                 print("I did not catch any keywords")
 
         return item
