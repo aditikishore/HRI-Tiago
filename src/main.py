@@ -113,15 +113,9 @@ def test_motions(base, body):
 
 def test_pickup(base, body):
 
-    marker = marker_manager()
+    marker = marker_manager.marker_manager()
 
-    base.move_distance(0.05, base.cmd_w)
-    
-    
-    
-    
-
-    
+    # base.move_distance(0.05, base.cmd_w)
 
     base.move_from_init_to_home()
     time.sleep(2)
@@ -133,6 +127,8 @@ def test_pickup(base, body):
     time.sleep(5)
 
     body.head_mgr('disable')
+    time.sleep(2)
+    
     body.look_at_inv()
     time.sleep(2)
 
@@ -140,6 +136,8 @@ def test_pickup(base, body):
 
     body.extend_right_arm()
     time.sleep(5)
+
+    marker.calc_arm_to_obj()
 
     # body.center_torso()
     # time.sleep(5)

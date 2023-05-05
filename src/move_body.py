@@ -125,7 +125,7 @@ class robot_body:
 
     def extend_right_arm(self):
         self.play_motion('offer_right')
-        time.sleep(10)
+        time.sleep(15)
         self.move_right_arm(self.right_arm_ext_pos)
         time.sleep(5)
 

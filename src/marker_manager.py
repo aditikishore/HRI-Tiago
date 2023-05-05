@@ -3,19 +3,23 @@
 import rospy
 import time
 
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Pose, PoseStamped
 from aruco_msgs.msg import Marker, MarkerArray
 
+import tf
 
+    
 
 class marker_manager:
     def __init__(self):
 
         self.marker_list = []
         self.msg = MarkerArray()
+        self.tf_listener = tf.TransformListener()
 
 
     def get_markers(self):
+        self.marker_list = []
         print("Please start ARUCO node within 15 sec")
 
         time.sleep(15)
@@ -33,6 +37,23 @@ class marker_manager:
             print("Y: ", marker.pose.pose.position.y)
             print("Z: ", marker.pose.pose.position.z)
 
+    def calc_arm_to_obj(self):
+        [x, y, z] = self.get_arm_transform()
+        print("arm coords ")
+        print("X: ", x)
+        print("Y: ", y)
+        print("Z: ", z)
+
+    def get_arm_transform(self):
+        # if self.tf.frameExists("/base_link") and self.tf.frameExists("/gripper_right_grasping_frame"):
+        # t = self.tf_listener.getLatestCommonTime("/base_link", "/gripper_right_grasping_frame")
+        p1 = PoseStamped()
+        p1.header.frame_id = "gripper_right_grasping_frame"
+        p1.pose.orientation.w = 1.0    # Neutral orientation
+        p_in_base = self.tf_listener.transformPose("/base_link", p1)
+        # print ("Position of the fingertip in the robot base:")
+        # print (p_in_base)
+        return p_in_base.pose.position.x, p_in_base.pose.position.y, p_in_base.pose.position.z
         
 
 if __name__ == '__main__':
