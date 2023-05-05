@@ -23,7 +23,7 @@ class marker_manager:
         print("Please start ARUCO node within 15 sec")
 
         time.sleep(15)
-        msg = rospy.wait_for_message("/markers", MarkerArray, timeout=None)
+        msg = rospy.wait_for_message("/aruco_marker_publisher/markers", MarkerArray, timeout=None)
         self.print_msg(msg)
         self.msg = msg
 
@@ -32,12 +32,16 @@ class marker_manager:
 
     def print_msg(self, msg):
         for marker in msg.markers:
+            self.marker_list.append({'id': marker.id, 'x': marker.pose.pose.position.x, 'y': marker.pose.pose.position.y, 'z': marker.pose.pose.position.z})
             print("Marker ID: ", marker.id)
             print("X: ", marker.pose.pose.position.x)
             print("Y: ", marker.pose.pose.position.y)
             print("Z: ", marker.pose.pose.position.z)
 
-    def calc_arm_to_obj(self):
+        print("Marker List: ")
+        print(self.marker_list)
+
+    def calc_arm_to_obj(self, id):
         [x, y, z] = self.get_arm_transform()
         print("arm coords ")
         print("X: ", x)
@@ -50,7 +54,7 @@ class marker_manager:
         p1 = PoseStamped()
         p1.header.frame_id = "gripper_right_grasping_frame"
         p1.pose.orientation.w = 1.0    # Neutral orientation
-        p_in_base = self.tf_listener.transformPose("/base_link", p1)
+        p_in_base = self.tf_listener.transformPose("/base_footprint", p1)
         # print ("Position of the fingertip in the robot base:")
         # print (p_in_base)
         return p_in_base.pose.position.x, p_in_base.pose.position.y, p_in_base.pose.position.z

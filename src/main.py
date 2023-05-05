@@ -29,7 +29,7 @@ def HRI_script():
     # base.move_from_init_to_home()
 
     # talker.talk('Hi, I am TIAGo, your personal helper robot. I can retrieve things for you from that table behind me.', block=True)
-    # talker.talk('The things kept on the table are: a water bottle, pill bottle, coffee, jar of mixed nuts, and dried fruits.', block=True)
+    # talker.talk('The things kept on the table are: a pill bottle, water bottle, oats, jar of mixed nuts, and multi-vitamins.', block=True)
     # talker.talk('What would you like me to bring for you?.', block=True)
 
     # assist_loop(base, body, talker, listener)
@@ -127,10 +127,12 @@ def test_pickup(base, body):
     time.sleep(5)
 
     body.head_mgr('disable')
-    time.sleep(2)
-    
+    time.sleep(5)
+
     body.look_at_inv()
-    time.sleep(2)
+    time.sleep(5)
+
+    print('should be looking at table now')
 
     marker.get_markers()
 
@@ -138,6 +140,8 @@ def test_pickup(base, body):
     time.sleep(5)
 
     marker.calc_arm_to_obj()
+
+    body.head_mgr('enable')
 
     # body.center_torso()
     # time.sleep(5)

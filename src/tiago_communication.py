@@ -96,11 +96,11 @@ class Listener:
             elif token.text == "nuts":
                 print("nuts")
                 item = token.text
-            elif token.text == "fruits":
-                print("fruits")
+            elif token.text == "vitamins":
+                print("vitamins")
                 item = token.text
-            elif token.text == "coffee":
-                print("coffee")
+            elif token.text == "oats":
+                print("oats")
                 item = token.text
             elif token.text == "thank":
                 print("thank you")

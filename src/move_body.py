@@ -18,7 +18,7 @@ class robot_body:
         self.camera_frame = "/xtion_rgb_optical_frame"
         self.base_frame = "base_link"
 
-        self.inv_point = self.create_point_stamped(1, 0, 0.3)
+        self.inv_point = self.create_point_stamped(1.5, 0, 0.3)
         self.neutral_point = self.create_point_stamped(20, 0, 1.6)
 
         self.head_goal = PointHeadGoal()
@@ -111,7 +111,7 @@ class robot_body:
         self.move_torso(0.34)
 
     def center_torso(self):
-        self.move_torso(0.2)
+        self.move_torso(0.17)
 
     def lower_torso(self):
         self.move_torso(0.0)
@@ -125,7 +125,9 @@ class robot_body:
 
     def extend_right_arm(self):
         self.play_motion('offer_right')
-        time.sleep(15)
+        time.sleep(8)
+        self.center_torso()
+        time.sleep(3)
         self.move_right_arm(self.right_arm_ext_pos)
         time.sleep(5)
 
