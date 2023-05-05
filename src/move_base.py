@@ -28,7 +28,7 @@ class robot_base:
         self.home_x = -1.8
         self.home_y = 1.3
 
-        self.inv_y = 2.3
+        self.inv_y = 1.8
 
         self.tar_x = -2.2
         self.tar_y = 0.5

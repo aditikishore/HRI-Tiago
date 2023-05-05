@@ -5,6 +5,7 @@ import rospy
 import move_base
 import move_body
 import tiago_communication
+import marker_manager
 
 
 def init_ros():
@@ -17,22 +18,23 @@ def HRI_script():
     print('Initialised base')
     body = move_body.robot_body()
     print('Initialised body')
-    talker = tiago_communication.Talker()
+    # talker = tiago_communication.Talker()
     print('Initialised talker')
-    listener = tiago_communication.Listener()
+    # listener = tiago_communication.Listener()
     print('Initialised listener')
 
     # test_motions(base, body)
+    test_pickup(base, body)
 
-    base.move_from_init_to_home()
+    # base.move_from_init_to_home()
 
-    talker.talk('Hi, I am TIAGo, your personal helper robot. I can retrieve things for you from that table behind me.', block=True)
-    talker.talk('The things kept on the table are: a water bottle, pill bottle, coffee, jar of mixed nuts, and dried fruits.', block=True)
-    talker.talk('What would you like me to bring for you?.', block=True)
+    # talker.talk('Hi, I am TIAGo, your personal helper robot. I can retrieve things for you from that table behind me.', block=True)
+    # talker.talk('The things kept on the table are: a water bottle, pill bottle, coffee, jar of mixed nuts, and dried fruits.', block=True)
+    # talker.talk('What would you like me to bring for you?.', block=True)
 
-    assist_loop(base, body, talker, listener)
+    # assist_loop(base, body, talker, listener)
 
-    base.move_from_home_to_init()
+    # base.move_from_home_to_init()
 
 def assist_loop(base, body, talker, listener):
 
@@ -90,7 +92,6 @@ def assist_loop(base, body, talker, listener):
         talker.talk('Could I get you something else?', block=True)
 
 def test_motions(base, body):
-    # base.move_distance(1.25 + base.half_base_length, base.cmd_w)
 
     base.move_from_init_to_home()
     time.sleep(2)
@@ -109,6 +110,46 @@ def test_motions(base, body):
     base.move_from_tar_to_home()
     time.sleep(2)
     base.move_from_home_to_init()
+
+def test_pickup(base, body):
+
+    marker = marker_manager()
+
+    base.move_distance(0.05, base.cmd_w)
+    
+    
+    
+    
+
+    
+
+    base.move_from_init_to_home()
+    time.sleep(2)
+
+    base.move_from_home_to_inv()
+    time.sleep(2)
+
+    body.raise_torso()
+    time.sleep(5)
+
+    body.head_mgr('disable')
+    body.look_at_inv()
+    time.sleep(2)
+
+    marker.get_markers()
+
+    body.extend_right_arm()
+    time.sleep(5)
+
+    # body.center_torso()
+    # time.sleep(5)
+    # body.look_straight()
+    # time.sleep(2)
+    # base.move_from_inv_to_tar()
+    # time.sleep(2)
+    # base.move_from_tar_to_home()
+    # time.sleep(2)
+    # base.move_from_home_to_init()
     
 
 
