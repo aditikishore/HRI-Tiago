@@ -27,7 +27,7 @@ class robot_base:
         #WAYPOINTS
         self.first_turn_x = -1.0
 
-        self.home_x = -1.9
+        self.home_x = -1.7
         self.home_y = 1.3
 
         self.inv_y = 2.1
