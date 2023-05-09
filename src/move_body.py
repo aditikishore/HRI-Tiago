@@ -141,7 +141,7 @@ class robot_body:
         self.move_torso(0.34)
 
     def center_torso(self):
-        self.move_torso(0.17)
+        self.move_torso(0.22)
 
     def lower_torso(self):
         self.move_torso(0.08)

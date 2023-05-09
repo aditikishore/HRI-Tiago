@@ -94,6 +94,9 @@ def assist_loop(base, body, talker, listener, marker):
             base.move_from_inv_to_arm()
             time.sleep(2)
         
+            talker.talk("I see the " + listener.keyword_to_id.get(item)[1], block=True)
+            talker.talk('I will pick it up with my arm now.', block=False)
+
             body.extend_right_arm()
             time.sleep(5)
             
@@ -108,6 +111,7 @@ def assist_loop(base, body, talker, listener, marker):
             base.move_from_obj_to_arm()
             time.sleep(2)
             
+            talker.talk('I am moving to the target table now to drop off the '+ listener.keyword_to_id.get(item)[1], '. Please stand clear.', block=False)
             base.move_from_inv_to_tar()
             time.sleep(2)
             
@@ -139,7 +143,7 @@ def test_assist_loop(base, body, listener, marker):
 
     while(not exit):
 
-        item = 'water'
+        item = 'vitamins'
         # item = listener.listen()
         print (item)
         
@@ -164,11 +168,13 @@ def test_assist_loop(base, body, listener, marker):
         time.sleep(2)
         
         markers = marker.get_markers()
+        # markers = marker.marker_dict
 
         if listener.keyword_to_id.get(item)[0] not in markers:
             print("Not able to see ", item)
             body.look_down_more()
             time.sleep(2)
+            # markers = marker.marker_dict
             markers = marker.get_markers()
        
         if listener.keyword_to_id.get(item)[0] in markers:
@@ -181,9 +187,9 @@ def test_assist_loop(base, body, listener, marker):
             body.extend_right_arm()
             time.sleep(5)
             
-            # X_off, Y_off = marker.calc_arm_to_obj(listener.keyword_to_id.get(item)[0])
-            X_off = 0.4
-            Y_off = 0.1
+            X_off, Y_off = marker.calc_arm_to_obj(listener.keyword_to_id.get(item)[0])
+            # X_off = 0.4
+            # Y_off = 0.1
             print('X offset: ', X_off)
             print('Y offset: ', Y_off)
             base.move_from_arm_to_obj(-Y_off, X_off)

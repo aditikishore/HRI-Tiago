@@ -14,6 +14,13 @@ class marker_manager:
     def __init__(self):
 
         self.marker_dict = dict()
+        self.marker_dict[9] = {'x': 1.0, 'y': -0.6, 'z': 1}
+        self.marker_dict[10] = {'x': 0.8, 'y': -0.3, 'z': 1}
+        self.marker_dict[11] = {'x': 0.8, 'y': 0.0, 'z': 1}
+        self.marker_dict[8] = {'x': 0.8, 'y': 0.3, 'z': 1}
+        self.marker_dict[12] = {'x': 1.0, 'y': 0.6, 'z': 1}
+
+
         self.msg = MarkerArray()
         self.tf_listener = tf.TransformListener()
         print('Initialised marker manager')

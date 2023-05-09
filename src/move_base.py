@@ -44,9 +44,9 @@ class robot_base:
         self.cmd_s = self.generate_twist(
             [-self.lin_vel, 0.0, 0.0], [0.0, 0.0, 0.0])
         self.cmd_a = self.generate_twist(
-            [0.0, self.lin_vel * 2, 0.0], [0.0, 0.0, 0.0])
+            [0.0, self.lin_vel * 1.2, 0.0], [0.0, 0.0, 0.0])
         self.cmd_d = self.generate_twist(
-            [0.0, -self.lin_vel * 2, 0.0], [0.0, 0.0, 0.0])
+            [0.0, -self.lin_vel * 1.2, 0.0], [0.0, 0.0, 0.0])
         self.cmd_l = self.generate_twist(
             [0.0, 0.0, 0.0], [0.0, 0.0, self.ang_vel])
         self.cmd_r = self.generate_twist(
