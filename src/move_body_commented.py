@@ -84,12 +84,12 @@ class robot_body:
         # Set the target point for the head
         self.head_goal.target = self.inv_point
 
-        # Publish all these variables onto the ROS Client Node for the Head
+        # Initialise Action Client for Head Commands
         self.head_client = actionlib.SimpleActionClient(
             '/head_controller/point_head_action', PointHeadAction)
         self.head_client.wait_for_server()
 
-        # Set the names and create an object for the Torso of the tiago
+        # Creating a joint trajectory message to send to the client for the torso
         self.torso_jt = JointTrajectory()
         self.torso_jt.joint_names = ['torso_lift_joint']
         self.torso_jtp = JointTrajectoryPoint()
