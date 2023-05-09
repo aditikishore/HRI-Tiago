@@ -40,7 +40,7 @@ class Listener:
         self.keyword_to_id = {
                               'pill': [12, 'pill bottle'],
                               'water': [8, 'water bottle'],
-                              'oats': [11, 'oats jar'],
+                              'oats': [13, 'oats jar'],
                               'nuts': [10, 'mixed nuts jar'],
                               'vitamins': [9, 'multi-vitamins'],
                               'thank': [-1,'thank you'],

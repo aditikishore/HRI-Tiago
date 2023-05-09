@@ -141,10 +141,10 @@ class robot_body:
         self.move_torso(0.34)
 
     def center_torso(self):
-        self.move_torso(0.22)
+        self.move_torso(0.20)
 
     def lower_torso(self):
-        self.move_torso(0.08)
+        self.move_torso(0.04)
 
     def move_torso(self, p):
         print('move_torso')
