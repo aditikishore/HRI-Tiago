@@ -66,10 +66,10 @@ class Listener:
             time.sleep(0.5)
 
             # listen for user input
-            t_end = time.time() + 5
-            while time.time() < t_end:
-                print("listening")
-                audio = self.recognizer.listen(source)
+            # t_end = time.time() + 5
+            # while time.time() < t_end:
+            print("listening")
+            audio = self.recognizer.listen(source, timeout=10)
 
             print("Heard something")
 
