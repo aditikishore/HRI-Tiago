@@ -62,14 +62,11 @@ class Listener:
             # prompt user to say something
             print("Please give me a command")
 
-            # sleep for half a second
-            time.sleep(0.5)
-
             # listen for user input
             # t_end = time.time() + 5
             # while time.time() < t_end:
-            print("listening")
-            audio = self.recognizer.listen(source, timeout=10)
+            print("Listening for 20sec")
+            audio = self.recognizer.listen(source, timeout=10, phrase_time_limit=20)
 
             print("Heard something")
 

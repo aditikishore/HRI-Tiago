@@ -29,7 +29,6 @@ def HRI_script():
     
 
     # test_motions(base, body)
-    # test_pickup(base, body)
 
     base.move_from_init_to_home()
 
@@ -40,8 +39,8 @@ def HRI_script():
     assist_loop(base, body, talker, listener, marker)
     # test_assist_loop(base, body, listener, marker)
 
-    base.move_from_home_to_init()
     print ('Moving to init for shutdown')
+    base.move_from_home_to_init()
 
 def assist_loop(base, body, talker, listener, marker):
 
@@ -76,6 +75,7 @@ def assist_loop(base, body, talker, listener, marker):
         body.look_down()
         time.sleep(2)
         
+        talker.talk('Please help me see.', block=True)
         markers = marker.get_markers()
 
         if listener.keyword_to_id.get(item)[0] not in markers:
@@ -84,6 +84,7 @@ def assist_loop(base, body, talker, listener, marker):
             talker.talk('I will try looking again', block=False)
             body.look_down_more()
             time.sleep(2)
+            talker.talk('Please help me see.', block=True)
             markers = marker.get_markers()
        
         if listener.keyword_to_id.get(item)[0] in markers:
@@ -144,7 +145,7 @@ def test_assist_loop(base, body, listener, marker):
     while(not exit):
 
         item = 'vitamins'
-        # item = listener.listen()
+        item = listener.listen()
         print (item)
         
         if item in ["nothing", "unknown"]:
@@ -167,15 +168,15 @@ def test_assist_loop(base, body, listener, marker):
         body.look_down()
         time.sleep(2)
         
-        markers = marker.get_markers()
-        # markers = marker.marker_dict
+        # markers = marker.get_markers()
+        markers = marker.marker_dict
 
         if listener.keyword_to_id.get(item)[0] not in markers:
             print("Not able to see ", item)
             body.look_down_more()
             time.sleep(2)
-            # markers = marker.marker_dict
-            markers = marker.get_markers()
+            markers = marker.marker_dict
+            # markers = marker.get_markers()
        
         if listener.keyword_to_id.get(item)[0] in markers:
             body.head_mgr('enable')
@@ -241,71 +242,6 @@ def test_motions(base, body):
     base.move_from_tar_to_home()
     time.sleep(2)
     base.move_from_home_to_init()
-
-def test_pickup(base, body):
-
-    marker = marker_manager.marker_manager()
-    listner = tiago_communication.Listener()
-
-    base.move_distance(0.05, base.cmd_w)
-    
-    
-    
-    marker.get_arm_transform()
-    
-    body.extend_right_arm()
-    
-    marker.get_arm_transform()
-    
-    body.retract_right_arm()
-    
-    body.look_down()
-
-    base.move_from_init_to_home()
-    time.sleep(2)
-
-    ## Listen for command
-    item = listner.listen()
-    if item in ["nothing","unknown"]:
-        #handle nothing case crappy listen
-        print(item)
-        return 
-    if item in ["thank"]:
-        
-        pass
-    # base.move_from_home_to_inv()
-    time.sleep(2)
-
-    body.raise_torso()
-    time.sleep(5)
-    #  From the above lines we will be in front of the table, Close enought that we can see but cant extend
-    body.head_mgr('disable')
-    time.sleep(5)
-    print('should be looking at table now')
-    markers = marker.get_markers()
-    body.head_mgr('enable')
-
-    print('got markers')
-    ## Given the markers and the item, find the marker that corresponds to the item
-    if listner.keyword_to_id.get(item)[0] in markers:
-        print('found marker')
-        body.move_from_inv_to_arm()
-        time.sleep(5)
-        
-        body.extend_right_arm()
-        time.sleep(5)
-        # Look at arm offset
-        xoff, yoff = marker.calc_arm_to_obj(listner.keyword_to_id.get(item)[0])
-        body.move_from_arm_to_obj(yoff, -xoff)
-        time.sleep(5)
-        ## Move to the table and pick up the item
-        
-    else:
-        ## ITem marker not found
-        print('did not find marker')
-        talkerResponse = 'I was not able to understand you, could you please repeat your request?'
-        
-
 
 if __name__ == '__main__':
     init_ros()
