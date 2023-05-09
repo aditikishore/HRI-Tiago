@@ -82,7 +82,7 @@ def assist_loop(base, body, talker, listener, marker):
         if listener.keyword_to_id.get(item)[0] not in markers:
             print("Not able to see ", item)
             talker.talk("I cannot see the " + listener.keyword_to_id.get(item)[1], block=True)
-            talker.talk('I will try looking again', block=True)
+            talker.talk('I will try looking again', block=False)
             body.look_down_more()
             time.sleep(2)
             markers = marker.get_markers()
@@ -117,6 +117,7 @@ def assist_loop(base, body, talker, listener, marker):
             
             body.lower_torso()
             time.sleep(3)
+            talker.talk('Here you go, your '+ listener.keyword_to_id.get(item)[1], ' is on the target table', block=False)
             body.open_gripper_right()
             time.sleep(2)
             
@@ -213,7 +214,6 @@ def test_assist_loop(base, body, listener, marker):
             
             base.move_from_tar_to_home()
             time.sleep(5)
-            # talker.talk('Could I get you something else?', block=True)
             
         else:
             body.head_mgr('enable')

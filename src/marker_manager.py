@@ -28,15 +28,15 @@ class marker_manager:
 
     def get_markers(self):
         self.marker_dict = dict()
-        print("Please start ARUCO node within 15 sec")
+        print("Please start ARUCO node")
         # subprocess.run(["rosrun", "aruco_ros", "marker_publish_node"])
-        time.sleep(15)
+        time.sleep(2)
         msg = rospy.wait_for_message("/aruco_marker_publisher/markers", MarkerArray, timeout=None)
         self.store_markers(msg)
         self.msg = msg
         # subprocess.run(["rosnode", "kill", "/aruco_marker_publisher"])
-        print("Message received, please shutdown node")
-        time.sleep(15)
+        print("Message received, please shutdown node within 5 sec")
+        time.sleep(5)
         return self.marker_dict
 
     def store_markers(self, msg):
@@ -44,8 +44,8 @@ class marker_manager:
             self.marker_dict[marker.id] = {'x': marker.pose.pose.position.x, 'y': marker.pose.pose.position.y, 'z': marker.pose.pose.position.z}
             print("Got marker ID: ", marker.id)
 
-        print("Stored marker List: ")
-        print(self.marker_dict)
+        # print("Stored marker List: ")
+        # print(self.marker_dict)
 
     def calc_arm_to_obj(self, id):
         [x, y, z] = self.get_arm_transform()
