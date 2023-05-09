@@ -21,6 +21,8 @@ class robot_base:
         self.Y_pos = self.half_base_width
         self.ori_pos = math.pi
 
+        self.obj_x = 0.0
+        self.obj_y = 0.0
 
         #WAYPOINTS
         self.first_turn_x = -1.0
@@ -28,10 +30,12 @@ class robot_base:
         self.home_x = -1.8
         self.home_y = 1.3
 
-        self.inv_y = 1.8
+        self.inv_y = 2.1
+        
+        self.inv_arm_y = 1.8
 
         self.tar_x = -2.2
-        self.tar_y = 0.5
+        self.tar_y = 0.65
         ##########
 
 
@@ -40,9 +44,9 @@ class robot_base:
         self.cmd_s = self.generate_twist(
             [-self.lin_vel, 0.0, 0.0], [0.0, 0.0, 0.0])
         self.cmd_a = self.generate_twist(
-            [0.0, self.lin_vel, 0.0], [0.0, 0.0, 0.0])
+            [0.0, self.lin_vel * 2, 0.0], [0.0, 0.0, 0.0])
         self.cmd_d = self.generate_twist(
-            [0.0, -self.lin_vel, 0.0], [0.0, 0.0, 0.0])
+            [0.0, -self.lin_vel * 2, 0.0], [0.0, 0.0, 0.0])
         self.cmd_l = self.generate_twist(
             [0.0, 0.0, 0.0], [0.0, 0.0, self.ang_vel])
         self.cmd_r = self.generate_twist(
@@ -51,6 +55,8 @@ class robot_base:
 
         self.robot_base_publisher = rospy.Publisher(
             '/mobile_base_controller/cmd_vel', Twist, queue_size=1)
+        
+        print('Initialised base')
 
     # robot moves to home position and faces user
     def move_from_init_to_home(self):
@@ -62,15 +68,47 @@ class robot_base:
     def move_from_home_to_inv(self):
         self.move_to_point(self.home_x, self.inv_y-self.half_base_length, 90)
         self.current_pos = "inv"
+        
+    #robot moves to a position where it can extend the arm from
+    def move_from_inv_to_arm(self):
+        self.move_distance(self.inv_y - self.inv_arm_y, self.cmd_s)
+        self.Y_pos = self.Y_pos - (self.inv_y - self.inv_arm_y)
+        self.current_pos = "arm"
+        
+    #robot moves to pick up the object (map coordinate frames)
+    def move_from_arm_to_obj(self, x, y):
+        self.obj_x = x
+        self.obj_y = y + (self.inv_y - self.inv_arm_y) + 0.05
+        if self.obj_x < 0:
+            self.move_distance(abs(self.obj_x), self.cmd_a)
+        else:
+            self.move_distance(abs(self.obj_x), self.cmd_d)
+        
+        self.move_distance(self.obj_y, self.cmd_w)
+        self.current_pos = "obj"
+        
+    #robot moves back after picking up the object
+    def move_from_obj_to_arm(self):
+        self.move_distance(self.obj_y, self.cmd_s)
+        if self.obj_x < 0:
+            self.move_distance(abs(self.obj_x), self.cmd_d)
+        else:
+            self.move_distance(abs(self.obj_x), self.cmd_a)
+        self.current_pos = "arm"
 
     # robot moves close to target table, ready to place
     def move_from_inv_to_tar(self):
         self.move_to_point(self.tar_x + self.half_base_width, self.home_y, -90)
-        self.move_to_point(self.tar_x + self.half_base_width, self.tar_y + self.half_base_length, -90)
+        self.move_to_point(self.tar_x + self.half_base_width, self.tar_y + self.half_base_length, -110)
         self.current_pos = "tar"
 
     # robot moves back to home, ready for another command
     def move_from_tar_to_home(self):
+        self.move_to_point(self.home_x, self.home_y, -95)
+        self.current_pos = "home"
+
+    # robot moves back to home, ready for another command
+    def move_from_inv_to_home(self):
         self.move_to_point(self.home_x, self.home_y, -95)
         self.current_pos = "home"
 

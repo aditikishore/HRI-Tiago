@@ -14,12 +14,14 @@ from play_motion_msgs.msg import PlayMotionActionGoal
 class robot_body:
     def __init__(self):
 
-        # head stuff
+        # head look to point
         self.camera_frame = "/xtion_rgb_optical_frame"
         self.base_frame = "base_link"
 
         self.inv_point = self.create_point_stamped(1.5, 0, 0.3)
         self.neutral_point = self.create_point_stamped(20, 0, 1.6)
+        self.look_down_j = [0.0, -0.6]
+        self.look_down_more_j = [0.0, -0.8]
 
         self.head_goal = PointHeadGoal()
         self.head_goal.pointing_frame = self.camera_frame
@@ -37,6 +39,17 @@ class robot_body:
 
         self.head_mgr_client = actionlib.SimpleActionClient(
             '/pal_head_manager/disable', DisableAction)
+        
+        # head stuff
+        self.head_jt = JointTrajectory()
+        self.head_jt.joint_names = ['head_1_joint', 'head_2_joint']
+        self.head_jtp = JointTrajectoryPoint()
+        self.head_jtp.positions = [0.0, 0.0]
+        self.head_jtp.time_from_start = rospy.Duration(2)
+        self.head_jt.points.append(self.head_jtp)
+
+        self.head_pub = rospy.Publisher(
+            '/head_controller/command', JointTrajectory, queue_size=1)
 
         # torso stuff
         self.torso_jt = JointTrajectory()
@@ -71,6 +84,10 @@ class robot_body:
 
         self.right_arm_pub = rospy.Publisher(
             '/arm_right_controller/command', JointTrajectory, queue_size=1)
+        
+        print('Initialised body')
+        
+    #methods
 
     def look_at_inv(self):
         print("look_to_point")
@@ -89,6 +106,19 @@ class robot_body:
         self.head_goal.target = point
         self.head_client.send_goal(self.head_goal)
         # self.head_client.wait_for_result()
+        
+    def look_down(self):
+        self.move_head(self.look_down_j)
+
+    def look_down_more(self):
+        self.move_head(self.look_down_more_j)
+
+    def move_head(self, j):
+        print('move_head')
+        self.head_jtp.positions = j
+        self.head_jt.points[0] = self.head_jtp
+        self.head_pub.publish(self.head_jt)
+        time.sleep(5)
 
     def head_mgr(self, command):
 
@@ -114,7 +144,7 @@ class robot_body:
         self.move_torso(0.17)
 
     def lower_torso(self):
-        self.move_torso(0.0)
+        self.move_torso(0.08)
 
     def move_torso(self, p):
         print('move_torso')
@@ -137,6 +167,10 @@ class robot_body:
         self.right_arm_jt.points[0] = self.right_arm_jtp
         self.right_arm_pub.publish(self.right_arm_jt)
         time.sleep(5)
+        
+    def retract_right_arm(self):
+        self.play_motion('home_right')
+        time.sleep(15)
 
     def close_gripper_right(self):
         self.play_motion('close_right')

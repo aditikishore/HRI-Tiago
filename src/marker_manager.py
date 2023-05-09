@@ -5,7 +5,7 @@ import time
 
 from geometry_msgs.msg import Pose, PoseStamped
 from aruco_msgs.msg import Marker, MarkerArray
-
+import subprocess
 import tf
 
     
@@ -13,50 +13,50 @@ import tf
 class marker_manager:
     def __init__(self):
 
-        self.marker_list = []
+        self.marker_dict = dict()
         self.msg = MarkerArray()
         self.tf_listener = tf.TransformListener()
+        print('Initialised marker manager')
 
 
     def get_markers(self):
-        self.marker_list = []
+        self.marker_dict = dict()
         print("Please start ARUCO node within 15 sec")
-
+        # subprocess.run(["rosrun", "aruco_ros", "marker_publish_node"])
         time.sleep(15)
         msg = rospy.wait_for_message("/aruco_marker_publisher/markers", MarkerArray, timeout=None)
-        self.print_msg(msg)
+        self.store_markers(msg)
         self.msg = msg
-
+        # subprocess.run(["rosnode", "kill", "/aruco_marker_publisher"])
         print("Message received, please shutdown node")
         time.sleep(15)
+        return self.marker_dict
 
-    def print_msg(self, msg):
+    def store_markers(self, msg):
         for marker in msg.markers:
-            self.marker_list.append({'id': marker.id, 'x': marker.pose.pose.position.x, 'y': marker.pose.pose.position.y, 'z': marker.pose.pose.position.z})
-            print("Marker ID: ", marker.id)
-            print("X: ", marker.pose.pose.position.x)
-            print("Y: ", marker.pose.pose.position.y)
-            print("Z: ", marker.pose.pose.position.z)
+            self.marker_dict[marker.id] = {'x': marker.pose.pose.position.x, 'y': marker.pose.pose.position.y, 'z': marker.pose.pose.position.z}
+            print("Got marker ID: ", marker.id)
 
-        print("Marker List: ")
-        print(self.marker_list)
+        print("Stored marker List: ")
+        print(self.marker_dict)
 
     def calc_arm_to_obj(self, id):
         [x, y, z] = self.get_arm_transform()
-        print("arm coords ")
-        print("X: ", x)
-        print("Y: ", y)
-        print("Z: ", z)
+        # print("arm coords ")
+        # print("X: ", x)
+        # print("Y: ", y)
+        # print("Z: ", z)
+        X_off  = self.marker_dict[id]['x'] - x
+        Y_off = self.marker_dict[id]['y'] - y
+        
+        return X_off, Y_off
 
     def get_arm_transform(self):
-        # if self.tf.frameExists("/base_link") and self.tf.frameExists("/gripper_right_grasping_frame"):
-        # t = self.tf_listener.getLatestCommonTime("/base_link", "/gripper_right_grasping_frame")
         p1 = PoseStamped()
         p1.header.frame_id = "gripper_right_grasping_frame"
         p1.pose.orientation.w = 1.0    # Neutral orientation
         p_in_base = self.tf_listener.transformPose("/base_footprint", p1)
-        # print ("Position of the fingertip in the robot base:")
-        # print (p_in_base)
+        print (p_in_base)
         return p_in_base.pose.position.x, p_in_base.pose.position.y, p_in_base.pose.position.z
         
 
