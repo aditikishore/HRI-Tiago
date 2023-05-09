@@ -111,13 +111,13 @@ def assist_loop(base, body, talker, listener, marker):
             base.move_from_obj_to_arm()
             time.sleep(2)
             
-            talker.talk('I am moving to the target table now to drop off the '+ listener.keyword_to_id.get(item)[1], '. Please stand clear.', block=False)
+            talker.talk('I am moving to the target table now to drop off the ' + listener.keyword_to_id.get(item)[1] + '. Please stand clear.', block=False)
             base.move_from_inv_to_tar()
             time.sleep(2)
             
             body.lower_torso()
             time.sleep(3)
-            talker.talk('Here you go, your '+ listener.keyword_to_id.get(item)[1], ' is on the target table', block=False)
+            talker.talk('Here you go, your ' + listener.keyword_to_id.get(item)[1] + ' is on the target table', block=False)
             body.open_gripper_right()
             time.sleep(2)
             
