@@ -7,27 +7,20 @@ import move_body
 import tiago_communication
 import marker_manager
 
-#change head controller to jt
-#be closer to table when looking down. arm was at edge of table from current pos
-#target table was almost 20deg
-
 def init_ros():
 
     rospy.init_node('hri_node', anonymous=False)
 
+#main script that will perform the physical HRI task
 def HRI_script():
 
+    #initialise class objects
     base = move_base.robot_base()
-    
     body = move_body.robot_body()
-    
     talker = tiago_communication.Talker()
-    
     listener = tiago_communication.Listener()
-    
     marker = marker_manager.marker_manager()
     
-
     # test_motions(base, body)
 
     base.move_from_init_to_home()
@@ -36,35 +29,42 @@ def HRI_script():
     talker.talk('The things kept on the table are: a pill bottle, water bottle, oats, jar of mixed nuts, and multi-vitamins.', block=True)
     talker.talk('What would you like me to bring for you?.', block=True)
 
+    #run a loop to fetch objects based on voice commands
     assist_loop(base, body, talker, listener, marker)
     # test_assist_loop(base, body, listener, marker)
 
+    #park the robot when the user does not want more items and the loop exits
     print ('Moving to init for shutdown')
     base.move_from_home_to_init()
 
+#function that runs the main HRI task in a loop. ask for command, pick up item, place item.
 def assist_loop(base, body, talker, listener, marker):
 
     exit = False
 
     while(not exit):
 
+        #get command
         item = listener.listen()
         print (item)
         
+        #if no keywords detected, go back to start of loop and ask for command again
         if item in ["nothing", "unknown"]:
             print("I did not catch any keywords")
             talker.talk('I was not able to understand you, could you please repeat your request?', block=True)
             continue
         
+        #if command is thank you, terminate the loop and exit the function
         if item in ["thank", "thanks"]:
             print("exit")
             talker.talk('The pleasure was all mine. I will now go to my starting position for shutdown.', block=True)
             exit = True
             break
         
+        #acknowledge and confirm the requested item
         talker.talk("I will bring you your " + listener.keyword_to_id.get(item)[1], block=True)
 
-        #go to inv table
+        #go to inventory table
         base.move_from_home_to_inv()
         body.head_mgr('disable')
         time.sleep(5)
@@ -75,9 +75,11 @@ def assist_loop(base, body, talker, listener, marker):
         body.look_down()
         time.sleep(2)
         
+        #start marker detection node and get dict of markers and their posiitons
         talker.talk('Please help me see.', block=True)
         markers = marker.get_markers()
 
+        #check if requested object's marker ID is in dict. If not, move the head to a better position and attempt detection again.
         if listener.keyword_to_id.get(item)[0] not in markers:
             print("Not able to see ", item)
             talker.talk("I cannot see the " + listener.keyword_to_id.get(item)[1], block=True)
@@ -87,27 +89,35 @@ def assist_loop(base, body, talker, listener, marker):
             talker.talk('Please help me see.', block=True)
             markers = marker.get_markers()
        
+        #check again if requested object's marker ID is in dict.
         if listener.keyword_to_id.get(item)[0] in markers:
             body.head_mgr('enable')
             print('Found requested object marker')
             
+            #move to a position where arm can extend
             base.move_from_inv_to_arm()
             time.sleep(2)
         
+            #acknowledge detection of object
             talker.talk("I see the " + listener.keyword_to_id.get(item)[1], block=True)
             talker.talk('I will pick it up with my arm now.', block=False)
 
             body.extend_right_arm()
             time.sleep(5)
             
+            #calculate the X and Y distance from gripper to object
             X_off, Y_off = marker.calc_arm_to_obj(listener.keyword_to_id.get(item)[0])
             print('X offset: ', X_off)
             print('Y offset: ', Y_off)
+
+            #move to grasp object
             base.move_from_arm_to_obj(-Y_off, X_off)
             time.sleep(5)
             
             body.close_gripper_right()
             time.sleep(2)
+
+            #move back to a safe position before turning towards target table
             base.move_from_obj_to_arm()
             time.sleep(2)
             
@@ -117,6 +127,8 @@ def assist_loop(base, body, talker, listener, marker):
             
             body.lower_torso()
             time.sleep(3)
+
+            #drop off the item
             talker.talk('Here you go, your ' + listener.keyword_to_id.get(item)[1] + ' is on the target table', block=False)
             body.open_gripper_right()
             time.sleep(2)
@@ -124,10 +136,12 @@ def assist_loop(base, body, talker, listener, marker):
             body.retract_right_arm()
             time.sleep(2)
             
+            #move to home and ready for further commands
             base.move_from_tar_to_home()
             time.sleep(5)
         
         else:
+            #if the requested marker ID was not found two times in a row, move back to home and accept another command.
             body.head_mgr('enable')
             print('Still not able to see marker')
             talker.talk("Sorry, I was not able to find the " + listener.keyword_to_id.get(item)[1], block=True)
@@ -136,8 +150,10 @@ def assist_loop(base, body, talker, listener, marker):
             base.move_from_inv_to_home()
             time.sleep(5)
         
+        #ask for another command before looping
         talker.talk('Could I get you something else?', block=True)
-            
+
+#function to test the assist loop. identical to the above code, but with talker statements removed and some hard coded values.
 def test_assist_loop(base, body, listener, marker):
 
     exit = False
@@ -223,6 +239,7 @@ def test_assist_loop(base, body, listener, marker):
             base.move_from_inv_to_home()
             time.sleep(5)
 
+#function to test the motion of the base and verify that the various waypoints dont result in collisions
 def test_motions(base, body):
 
     base.move_from_init_to_home()

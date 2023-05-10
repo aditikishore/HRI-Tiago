@@ -37,6 +37,7 @@ class Talker:
 class Listener:
     def __init__(self):
 
+        #list to store keyword - aruco ID - item correspondence
         self.keyword_to_id = {
                               'pill': [12, 'pill bottle'],
                               'water': [8, 'water bottle'],
@@ -63,8 +64,6 @@ class Listener:
             print("Please give me a command")
 
             # listen for user input
-            # t_end = time.time() + 5
-            # while time.time() < t_end:
             print("Listening for 20sec")
             audio = self.recognizer.listen(source, timeout=10, phrase_time_limit=20)
 
@@ -75,9 +74,12 @@ class Listener:
             audioText = self.recognizer.recognize_google(audio)
             print("Google Speech Recognition thinks you said " + audioText)
             command = self.nlp(audioText)
+            #scan for keywords in list
             for com in command:
                 print("Token text: " + com.text.lower(),
                       "  Token index: " + str(com.idx))
+                
+                #if a keyword from the list is found in the raw text, break
                 if self.keyword_to_id.get(com.text.lower()) != None:
                     item = com.text.lower()
                     print("Found item: " + item)

@@ -13,6 +13,7 @@ import tf
 class marker_manager:
     def __init__(self):
 
+        #dictionary to store marker IDs and positions initialised with hard coded values for testing in gazebo
         self.marker_dict = dict()
         self.marker_dict[9] = {'x': 1.0, 'y': -0.6, 'z': 1}
         self.marker_dict[10] = {'x': 0.8, 'y': -0.3, 'z': 1}

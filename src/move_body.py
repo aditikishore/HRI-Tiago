@@ -85,6 +85,20 @@ class robot_body:
         self.right_arm_pub = rospy.Publisher(
             '/arm_right_controller/command', JointTrajectory, queue_size=1)
         
+        # left arm
+        self.left_arm_jt = JointTrajectory()
+        self.left_arm_jt.joint_names = ["arm_left_1_joint", "arm_left_2_joint", "arm_left_3_joint",
+                                         "arm_left_4_joint", "arm_left_5_joint", "arm_left_6_joint", "arm_left_7_joint"]
+        self.left_arm_jtp = JointTrajectoryPoint()
+        self.left_arm_jtp.positions = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        self.left_arm_jtp.time_from_start = rospy.Duration(3)
+        self.left_arm_jt.points.append(self.left_arm_jtp)
+
+        self.left_arm_ext_pos = [1.60, 0.6, 0.0, 0.65, -1.57, 0.0, 0.0]
+
+        self.left_arm_pub = rospy.Publisher(
+            '/arm_left_controller/command', JointTrajectory, queue_size=1)
+        
         print('Initialised body')
         
     #methods
@@ -101,18 +115,22 @@ class robot_body:
         self.head_client.send_goal(self.head_goal)
         # self.head_client.wait_for_result()
 
+    #turn head to look to a point
     def look_to_point(self, x, y, z):
         point = self.create_point_stamped(x, y, z)
         self.head_goal.target = point
         self.head_client.send_goal(self.head_goal)
         # self.head_client.wait_for_result()
-        
+    
+    #look at inv table using joint command
     def look_down(self):
         self.move_head(self.look_down_j)
 
+    #look at inv table from a different angle if marker detection fails the first time
     def look_down_more(self):
         self.move_head(self.look_down_more_j)
 
+    #move head to joint position
     def move_head(self, j):
         print('move_head')
         self.head_jtp.positions = j
@@ -120,6 +138,7 @@ class robot_body:
         self.head_pub.publish(self.head_jt)
         time.sleep(5)
 
+    #enable or disable alive engine
     def head_mgr(self, command):
 
         if (not self.head_mgr_client.wait_for_server(
@@ -137,12 +156,15 @@ class robot_body:
             action.duration = 0.0
             self.head_mgr_client.send_goal(action)
 
+    #torso position for marker detection
     def raise_torso(self):
         self.move_torso(0.34)
 
+    #torso position for object pickup
     def center_torso(self):
         self.move_torso(0.20)
 
+    #torso position for object drop off
     def lower_torso(self):
         self.move_torso(0.04)
 
@@ -161,6 +183,7 @@ class robot_body:
         self.move_right_arm(self.right_arm_ext_pos)
         time.sleep(5)
 
+    #move right arm to joint position
     def move_right_arm(self, j):
         print('move_right_arm')
         self.right_arm_jtp.positions = j
@@ -172,12 +195,40 @@ class robot_body:
         self.play_motion('home_right')
         time.sleep(15)
 
+    def extend_left_arm(self):
+        self.play_motion('offer_left')
+        time.sleep(8)
+        self.center_torso()
+        time.sleep(3)
+        self.move_left_arm(self.left_arm_ext_pos)
+        time.sleep(5)
+
+    #move left arm to joint position
+    def move_left_arm(self, j):
+        print('move_left_arm')
+        self.left_arm_jtp.positions = j
+        self.left_arm_jt.points[0] = self.left_arm_jtp
+        self.left_arm_pub.publish(self.left_arm_jt)
+        time.sleep(5)
+        
+    def retract_left_arm(self):
+        self.play_motion('home_left')
+        time.sleep(15)
+
     def close_gripper_right(self):
         self.play_motion('close_right')
         time.sleep(5)
 
     def open_gripper_right(self):
         self.play_motion('open_right')
+        time.sleep(5)
+
+    def close_gripper_left(self):
+        self.play_motion('close_left')
+        time.sleep(5)
+
+    def open_gripper_left(self):
+        self.play_motion('open_left')
         time.sleep(5)
 
     def play_motion(self, motion):
