@@ -1,3 +1,34 @@
+"""
+Tiago-Communication - ROSPY code for text-to-speech and speech-to-text conversion for the Tiago.
+
+In this file, we have created the text-to-speech and speech-to-text code that the tiago uses
+for communication with the user. It calls objects which listens and sends commands to the Tiago
+to speak. 
+
+This file uses speech recognition library of python along with TtsAction and TtsGoal libraries
+of pal_interaction_msgs.msg to communicate the TTS phrases.
+
+Usage:
+    1. Import the necessary modules:
+        import rospy
+        import time
+        import speech_recognition as sr
+        import spacy
+
+        from actionlib import SimpleActionClient
+        from pal_interaction_msgs.msg import TtsAction, TtsGoal
+
+    2. Create an instance of the robot_body class :
+        talker = Talker()
+        
+    3. Call the various functions of the class using the created instance in main.py:
+        item = listener.listen()
+
+    4. Run the node using the main() function in main.py:
+        if __name__ == '__main__':
+            HRI_Script()
+"""
+
 #!/usr/bin/env python
 
 import rospy
@@ -8,12 +39,31 @@ import spacy
 from actionlib import SimpleActionClient
 from pal_interaction_msgs.msg import TtsAction, TtsGoal
 
+"""
+Initialise function for the speech node.
+
+This function starts the speech node of ROS for our communication.
+
+"""
 
 def init_ros():
     rospy.init_node('speech_node', anonymous=False)
 
 
 class Talker:
+
+    """
+    Initialisation function for the basic setup of the Talker class.
+
+    This function will set the language requirement of the Tiago and start TtsAction node
+    of the Tiago for it's communication.
+
+        Args:
+            self: passes the object calling the function as a parameter.
+        Returns:
+            no data is returned in this function.
+    """
+
     def __init__(self):
         self.language = 'en_GB'
 
@@ -22,6 +72,20 @@ class Talker:
         print('waiting for tts server')
         self.ac.wait_for_server()
         print('Initialised talker')
+
+    """
+    Function to get the tiago to talk phrases.
+
+    This function takes in the input text from the function that calls it and sends the text 
+    to the Tiago for verbal output.
+
+        Args:
+            text: the output phrase to be spoken.
+            block (default=True): the decision to either talk and then wait or only talk 
+                without waiting. By default, it will talk and then wait for input.
+        Returns:
+            no data is returned from this function.
+    """
 
     def talk(self, text, block=True):
         goal = TtsGoal()
@@ -35,6 +99,16 @@ class Talker:
 
 
 class Listener:
+
+    """
+    Initialisation function for setup of the listener object.
+
+    This function will do the basic setup of the Tiago, like setting the keywords, 
+    starting the speech recognition node of the Tiago, and setting the natural language
+    processing model that uses spaCy.
+
+    """
+
     def __init__(self):
 
         #list to store keyword - aruco ID - item correspondence
@@ -52,7 +126,25 @@ class Listener:
         self.nlp = spacy.load("en_core_web_sm")
         print('Initialised listener')
 
+    """
+    Function to listen to the audio input of the user.
+
+    This function will wait for the user to give in audio input. After it records an input, 
+    it will try to determine what was spoken by the user by comparing it to our stored keywords
+    list using Google Speech Recognition. If it finds a match, it goes ahead and tries to find 
+    that object, or else it asks the user to speak again. 
+
+    The TiaGo listens for a total of 20 seconds each time for a user input. 
+
+        Args:
+            self: passes the object calling the function as a parameter.
+        Returns:
+            the item name that the user asked tiago to fetch.
+
+    """
+
     def listen(self):
+        
         # Use default microphone as audio source
         item = 'nothing'
         with sr.Microphone() as source:

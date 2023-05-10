@@ -1,3 +1,31 @@
+"""
+Main - main ROSPY code for controlling all our files, nodes, and codes. 
+
+In this file, we created our base algorithm for the entire task (workflow) that was
+required to do. We import all our files into this file and run this main file to get
+the TiaGo to do the work we expect it to do. 
+
+This code is required along with the other codes we have written to call them in the
+correct order for our entire task to execute properly.
+
+Usage:
+    1. Import the necessary modules:
+        import time
+        import rospy
+        import move_base
+        import move_body
+        import tiago_communication
+        import marker_manager
+        
+    2. Call the various functions of other classes (examples):
+        base.move_from_home_to_init()
+        body.open_gripper_right()
+        markers = marker.marker_dict
+
+    3. Run the node
+        if __name__ == '__main__':
+            init_ros()
+"""
 #!/usr/bin/env/python
 
 import time
@@ -7,11 +35,26 @@ import move_body
 import tiago_communication
 import marker_manager
 
+"""
+Function to initialise the main ros node.
+
+This function initialised the ros node needed for all the communication between the rospy
+code and the ROS system.
+
+"""
+
 def init_ros():
 
     rospy.init_node('hri_node', anonymous=False)
 
-#main script that will perform the physical HRI task
+"""
+Main function to run all the tasks required for this demo.
+
+This is the main function that will call all nodes and processes in order to
+perform our physical HRI task. It will divide the work and call the appropriate methods
+as and when needed and tell the TiaGo exactly what is to be done.
+
+"""
 def HRI_script():
 
     #initialise class objects
@@ -37,7 +80,21 @@ def HRI_script():
     print ('Moving to init for shutdown')
     base.move_from_home_to_init()
 
-#function that runs the main HRI task in a loop. ask for command, pick up item, place item.
+"""
+Function to keep running the main HRI project tasks on loop.
+
+This function keeps running the HRI project Code on loop. The loop it follows is ask the TiaGo for a command to pick up an item,
+go to the table to pick the item up, place the item on the target table, and then ask the user for the next command. 
+
+    Args:
+        base: object of the robot_base class used for moving the base of the TiaGo
+        body: object of the robot_body class used for moving the head, torso and arms of the TiaGo
+        talker: object of the Talker class used for telling the TiaGo to speak
+        listener: object of the Listener class used for telling the TiaGo to record the commands the user gives
+        marker: object of the marker_manager class that is used for tracking the Aruco markers
+    Returns:
+        no data is returned in this function.
+"""
 def assist_loop(base, body, talker, listener, marker):
 
     exit = False
@@ -153,7 +210,20 @@ def assist_loop(base, body, talker, listener, marker):
         #ask for another command before looping
         talker.talk('Could I get you something else?', block=True)
 
-#function to test the assist loop. identical to the above code, but with talker statements removed and some hard coded values.
+"""
+Function to test that individual objects of the code are working well in sync.
+
+This is a function used to test the previous section of code. It does not have any talking commands and just performs the task as is.
+It has some hard-coded values for testing whether the code works as we intend it to.
+
+    Args:
+        base: object of the robot_base class used for moving the base of the TiaGo
+        body: object of the robot_body class used for moving the head, torso and arms of the TiaGo
+        listener: object of the Listener class used for telling the TiaGo to record the commands the user gives
+        marker: object of the marker_manager class that is used for tracking the Aruco markers
+    Returns:
+        no data is returned in this function.
+"""
 def test_assist_loop(base, body, listener, marker):
 
     exit = False
@@ -239,7 +309,19 @@ def test_assist_loop(base, body, listener, marker):
             base.move_from_inv_to_home()
             time.sleep(5)
 
-#function to test the motion of the base and verify that the various waypoints dont result in collisions
+
+"""
+Function to test the base movement for deciding some exact locations for the base such as home and intermediate home points.
+
+This function is used to move the base of the robot for testing whether we can find out exact locations where we want the base
+to move without colliding anywhere in the workspace.
+
+    Args:
+        base: object of the robot_base class used for moving the base of the TiaGo
+        body: object of the robot_body class used for moving the head, torso and arms of the TiaGo
+    Returns:
+        no data is returned in this function.
+"""
 def test_motions(base, body):
 
     base.move_from_init_to_home()
