@@ -3,7 +3,7 @@
 Detailed Instructions:
 This codebase contains code and files that are needed for the Physical Human-Robot Interaction Task. The nodes used in this file is in alignment with the TIAGo Tutorials for ROS. The code developed here was modified to suit the task that was needed and has been written in such a way as to make it easy to understand and replicate if needed. 
 The download procedure is the same as defined in the ROS Tutorials.
-We added a few extra modules such as a Google Speech Recognition for talking and listening to the TIAGo.
+We added a few extra modules such as a Google Speech Recognition for talking and listening to the TIAGo and spacey for natural language processing.
 
 
 Program Architecture:
@@ -19,3 +19,10 @@ move_base.py contains the classes and methods for controlling the base of the ro
 tiago_communication.py contains the classes and methods to help the TIAGo talk and listen to the user. It uses the Google Speech Recognition for this part.
 
 marker_manager.py contains the classes and methods for detecting the Aruco markers on the objects using the camera of the TIAGo and sending out coordinates for the detected markers to the TIAGo for it to understand where the item for pick-up is.
+
+Install instructions:
+
+1. Clone the repo.
+2. pip install spacey.
+3. source the Tiago simulation workspace.
+4. Run main.py and ensure that Tiago is connected over the same network.
