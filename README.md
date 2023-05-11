@@ -1,9 +1,5 @@
 # HRI-Tiago
 
-Document link: https://livejohnshopkins-my.sharepoint.com/:w:/r/personal/vkolal1_jh_edu/_layouts/15/Doc.aspx?sourcedoc=%7B74F32930-1197-4B72-9275-2C8C4B4B47CA%7D&file=Document.docx&action=default&mobileredirect=true
-
-
-
 Program Architecture:
 
 All the files uploaded work in conjunction to get the TIAGo to move. To simplify the process, we use the main.py file that combines all the files and uses them in conjunction to make the TIAGo perform the physical HRI task.
